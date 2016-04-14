@@ -1,0 +1,52 @@
+﻿@model IEnumerable<RedditClone.Models.RedditPost>
+
+@{
+    ViewBag.Title = "Index";
+    int numbering = 1;
+}
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+
+<div class="row">
+    <div class="col-xs-8 leftside">
+        @foreach (var item in Model)
+        {
+            <div class="row overallpost">
+                <div class="col-xs-1">
+                    <h3 class="postnumbering center-block">@numbering</h3>
+                </div>
+                <div class="col-xs-2 center-block text-center">
+                    <button type="button" class="btn btn-link upvote glyphicon glyphicon-arrow-up"></button>
+                    <br />
+                    <span class="postscore">@(item.UpVotes - item.DownVotes)</span>
+                    <br />
+                    <button type="button" class="btn btn-link downvote glyphicon glyphicon-arrow-down"></button>
+                </div>
+                <div class="col-xs-3">
+                    <img class="img-responsive center-block" src="@item.ImageUrl" />
+                </div>
+                <div class="col-xs-6">
+                    <span class="posttitle">@Html.ActionLink($"{item.Title}", $"Details/{item.Id}")</span>
+                    <br />
+                    @Html.ActionLink($"{item.Comments.Count} comments", $"Details/{item.Id}")
+                    <span>no sharing</span>
+                </div>
+            </div>
+
+            numbering++;
+        }
+    </div>
+    <div class="col-xs-4 sidebar">
+        Sed ut perspiciatis unde omnis iste natus error sit voluptatem
+        accusantium doloremque laudantium, totam rem aperiam, eaque ipsa
+        quae ab illo inventore veritatis et quasi architecto beatae vitae dicta
+        sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit,
+        sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est,
+        qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora
+        incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem
+        ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit
+        qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?
+    </div>
+
+</div>
