@@ -3,15 +3,22 @@
 @{
     ViewBag.Title = "Index";
     int numbering = 1;
+    int postcolsize = 8;
+    int titleCommentSize = 6;
 }
 <p>
     @Html.ActionLink("Create New", "Create")
 </p>
 
 <div class="row">
-    <div class="col-xs-8 leftside">
+    <div class="col-xs-@postcolsize leftside">
         @foreach (var item in Model)
         {
+            if(numbering > 6)
+            {
+                postcolsize = 12;
+                titleCommentSize = 10;
+            }
             <div class="row overallpost">
                 <div class="col-xs-1">
                     <h3 class="postnumbering center-block">@numbering</h3>

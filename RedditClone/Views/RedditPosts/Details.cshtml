@@ -25,9 +25,16 @@
                 @Html.ActionLink($"{Model.Comments.Count} comments", $"Details/{Model.Id}")
                 <span>no sharing</span>
             </div>
+            <div class="row">
+                <div class="col-xs-6 col-xs-offset-6 postbody">
+                    <p>@Model.Body</p>
+                </div>
+            </div>
         </div>
-        <div class="row">
-            comments
+        <div class="row comments">
+            <h4 class="topcommentsheader">top 200 comments</h4>
+
+            comments loop
         </div>
     </div>
     <div class="col-xs-4 sidebar">
@@ -46,3 +53,4 @@
     @Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |
     @Html.ActionLink("Back to List", "Index")
 </p>
+

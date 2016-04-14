@@ -59,4 +59,13 @@ textarea {
     display: inline-block;
     background-color: yellow;
 }
+.postbody{
+    padding-top: 20px;
+}
+.comments{
+    padding-left: 20px;
+}
+.topcommentsheader{
+    border-bottom: dotted lightgrey 2px;
+}
 
