@@ -1,7 +1,10 @@
 ﻿@model RedditClone.Models.RedditPost
-
+@using RedditClone.Models;
 @{
     ViewBag.Title = "Details";
+    TimeSpan span = new TimeSpan();
+    DateTime now = DateTime.Now;
+    string daysOrHours = "";
 }
 
 <h2>Details</h2>
@@ -9,33 +12,53 @@
 <div class="row">
     <div class="col-xs-8 leftside">
         <div class="row overallpost">
-            <div class="col-xs-2 center-block text-center">
-                <button type="button" class="btn btn-link upvote glyphicon glyphicon-arrow-up"></button>
-                <br />
-                <span class="postscore">@(Model.UpVotes - Model.DownVotes)</span>
-                <br />
-                <button type="button" class="btn btn-link downvote glyphicon glyphicon-arrow-down"></button>
+            <div class="col-xs-1">
+                <button type="button" data-postid="@Model.Id" class="btn btn-link upvote glyphicon glyphicon-arrow-up"></button>
+                <h5 class="postscore">@(Model.UpVotes - Model.DownVotes)</h5>
+                <button type="button" data-postid="@Model.Id" class="btn btn-link downvote glyphicon glyphicon-arrow-down"></button>
             </div>
             <div class="col-xs-3">
-                <img class="img-responsive center-block" src="@Model.ImageUrl" />
+                <img class="postimage img-responsive center-block" src="@Model.ImageUrl" />
             </div>
             <div class="col-xs-6">
                 <span class="posttitle">@Html.ActionLink($"{Model.Title}", $"Details/{Model.Id}")</span>
-                <br />
+                @{
+                    span = now.Subtract(Model.PostTime);
+                }
+                @if (span.Days > 0)
+                {
+                    daysOrHours = span.Days + " days ago";
+                }
+                else if (span.Hours > 0)
+                {
+                    daysOrHours = span.Hours + " hours ago";
+                }
+                else if (span.Minutes > 0)
+                {
+                    daysOrHours = span.Minutes + " minutes ago";
+                }
+                else if (span.Seconds > 0)
+                {
+                    daysOrHours = span.Seconds + " seconds ago";
+                }
+                else
+                {
+                    daysOrHours = " just now";
+                }
+                <h6>Posted @daysOrHours by @Model.Author</h6>
                 @Html.ActionLink($"{Model.Comments.Count} comments", $"Details/{Model.Id}")
                 <span>no sharing</span>
             </div>
             <div class="row">
-                <div class="col-xs-6 col-xs-offset-6 postbody">
+                <div class="col-xs-6 col-xs-offset-4 postbody">
                     <p>@Model.Body</p>
                 </div>
             </div>
         </div>
-        <div class="row comments">
-            <h4 class="topcommentsheader">top 200 comments</h4>
-
-            comments loop
-        </div>
+        <p>
+            @Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |
+            @Html.ActionLink("Back to List", "Index")
+        </p>
     </div>
     <div class="col-xs-4 sidebar">
         Sed ut perspiciatis unde omnis iste natus error sit voluptatem
@@ -49,8 +72,100 @@
         qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?
     </div>
 </div>
-<p>
-    @Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |
-    @Html.ActionLink("Back to List", "Index")
-</p>
+<div class="row comments">
+    <h4 class="topcommentsheader">top 200 comments</h4>
+    Author: <input type="text" class="commentauthor" />
+    <br />
+    Comment: <input type="text" class="commentbody" />
+    <br />
+    <input type="button" data-postid="@Model.Id" class="addcomment" value="Add Comment" />
+</div>
 
+<div class="row">
+    @foreach (var c in Model.Comments)
+            {
+        <div class="col-xs-8 leftside">
+            <div class="row overallpost">
+                <div class="col-xs-1">
+                    <button type="button" data-postid="@Model.Id" data-commentid="@c.Id"class="btn btn-link cupvote glyphicon glyphicon-arrow-up"></button>
+                    <h5 class="postscore">@(c.UpVotes - c.DownVotes)</h5>
+                    <button type="button" data-postid="@Model.Id" data-commentid="@c.Id" class="btn btn-link cdownvote glyphicon glyphicon-arrow-down"></button>
+                </div>
+                <div class="col-xs-7">
+                    @{
+                        span = now.Subtract(c.PostTime);
+                    }
+                    @if (span.Days > 0)
+                    {
+                        daysOrHours = span.Days + " days ago";
+                    }
+                    else if (span.Hours > 0)
+                    {
+                        daysOrHours = span.Hours + " hours ago";
+                    }
+                    else if (span.Minutes > 0)
+                    {
+                        daysOrHours = span.Minutes + " minutes ago";
+                    }
+                    else if (span.Seconds > 0)
+                    {
+                        daysOrHours = span.Seconds + " seconds ago";
+                    }
+                    else
+                    {
+                        daysOrHours = " just now";
+                    }
+                    <h6>Posted @daysOrHours by @c.Author</h6>
+                </div>
+                <div class="row">
+                    <div class="col-xs-8 col-xs-offset-1 postbody">
+                        <p>@c.Body</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+                        }
+
+</div>
+
+
+
+
+@section scripts{
+    <script>
+        $(".upvote, .downvote, .cupvote, .cdownvote").click(function () {
+            var post = $(this);
+            var id = $(this).data('postid');
+            var isUp = true;
+            if ($(this).is('.downvote, .cdownvote')) {
+                isUp = false;
+            }
+            var cId = -1;
+            if($(this).is('cupvote, cdownvote')){
+                cId = $(this).data('commentid');
+            }
+            $.ajax({
+                type: "POST",
+                url: "../DoVote?id=" + id + "&cId="+ cId + "&isUp=" + isUp,
+            }).done(function (result) {
+                if (isUp)
+                    $(post).next().html(result);
+                else
+                    $(post).prev().html(result);
+            });
+        });
+        $(".addcomment").click(function () {
+            var comment = $(this);
+            var id = $(this).data('postid');
+            var author = $(".commentauthor").val();
+            var body = $(".commentbody").val();
+            $.ajax({
+                type: "POST",
+                url: "../CreateComment?id=" + id + "&author=" + author + "&body="+ body,
+            })
+            console.log("Comment created!")
+            window.location.reload(true);
+        });
+
+    </script>
+}

@@ -37,6 +37,7 @@ textarea {
 }
 .overallpost{
     padding: 10px 0px;
+    position: relative;
 }
 .postnumbering{
    color: lightgrey;
@@ -46,26 +47,45 @@ textarea {
 }
 .upvote{
     color: lightgrey;
+    margin: auto;
 }
 .downvote{
     color: lightgrey;
+    margin: auto;
+}
+.cupvote{
+    color: lightgrey;
+    margin: auto;
+}
+.cdownvote{
+    color: lightgrey;
+    margin: auto;
 }
 .leftside{
     float: left;
-    display: inline-block;
+    
 }
 .sidebar{
     float: right;
     display: inline-block;
     background-color: yellow;
+    height: auto;
 }
 .postbody{
-    padding-top: 20px;
+    padding-top: 25px;
+}
+.postscore{
+    margin: auto;
+    position: relative;
 }
 .comments{
     padding-left: 20px;
 }
 .topcommentsheader{
     border-bottom: dotted lightgrey 2px;
+}
+.postimage{
+    height: 100px;
+    width: 150px;
 }
 

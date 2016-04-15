@@ -8,16 +8,17 @@ namespace RedditClone.Models
 {
     public class RedditPost
     {
-        [Required]
         public int Id { get; set; }
         [Required]
+        [MaxLength(50)]
         public string Author { get; set; }
         [Required]
+        [MaxLength(500)]
         public string Title { get; set; }
         [Required]
-        public DateTime PostTime { get; set; }
-        public int UpVotes { get; set; }
-        public int DownVotes { get; set; }
+        public DateTime PostTime { get; set; } = DateTime.Now;
+        public int UpVotes { get; set; } = 0;
+        public int DownVotes { get; set; } = 0;
         public string ImageUrl { get; set; }
         public string Body { get; set; }
 

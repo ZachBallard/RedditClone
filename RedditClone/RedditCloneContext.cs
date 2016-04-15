@@ -18,4 +18,5 @@ public class RedditCloneContext : DbContext
     }
 
     public System.Data.Entity.DbSet<RedditClone.Models.RedditPost> RedditPosts { get; set; }
+    public System.Data.Entity.DbSet<RedditClone.Models.Comment> Comments { get; set; }
 }

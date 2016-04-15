@@ -17,7 +17,47 @@ namespace RedditClone.Controllers
         // GET: RedditPosts
         public ActionResult Index()
         {
-            return View(db.RedditPosts.ToList());
+            var AllPosts = db.RedditPosts.ToList();
+            AllPosts = AllPosts.OrderByDescending(p => p.UpVotes - p.DownVotes).ToList();
+            return View(AllPosts);
+        }
+
+        // Post: Vote
+        [HttpPost]
+        public ActionResult DoVote(int id, int cId, bool isUp)
+        {
+            if (cId >= 0)
+            {
+                var post = db.RedditPosts.Find(id);
+                int result = 0;
+                if (isUp)
+                {
+                    post.Comments.ToList()[cId].UpVotes++;
+                }
+                else
+                {
+                    post.Comments.ToList()[cId].DownVotes++;
+                }
+                result = (post.Comments.ToList()[cId].UpVotes - post.Comments.ToList()[cId].DownVotes);
+                db.SaveChanges();
+                return Content(result.ToString());
+            }
+            else
+            {
+                var post = db.RedditPosts.Find(id);
+                int result = 0;
+                if (isUp)
+                {
+                    post.UpVotes++;
+                }
+                else
+                {
+                    post.DownVotes++;
+                }
+                result = (post.UpVotes - post.DownVotes);
+                db.SaveChanges();
+                return Content(result.ToString());
+            }
         }
 
         // GET: RedditPosts/Details/5
@@ -32,6 +72,7 @@ namespace RedditClone.Controllers
             {
                 return HttpNotFound();
             }
+            redditPost.Comments = redditPost.Comments.OrderByDescending(c => c.UpVotes - c.DownVotes).ToList();
             return View(redditPost);
         }
 
@@ -58,6 +99,15 @@ namespace RedditClone.Controllers
             return View(redditPost);
         }
 
+        // POST: RedditPosts/CreateComment
+        [HttpPost]
+        public ActionResult CreateComment(int id, string author, string body)
+        {
+            var post = db.RedditPosts.Find(id);
+            post.Comments.Add(new Comment {Author = author, Body = body});
+            db.SaveChanges();
+            return Content("Created!");
+        }
         // GET: RedditPosts/Edit/5
         public ActionResult Edit(int? id)
         {
