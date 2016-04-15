@@ -87,9 +87,9 @@
         <div class="col-xs-8 leftside">
             <div class="row overallpost">
                 <div class="col-xs-1">
-                    <button type="button" data-postid="@Model.Id" data-commentid="@c.Id"class="btn btn-link cupvote glyphicon glyphicon-arrow-up"></button>
+                    <button type="button" data-postid="@Model.Id @c.Id"class="btn btn-link cupvote glyphicon glyphicon-arrow-up"></button>
                     <h5 class="postscore">@(c.UpVotes - c.DownVotes)</h5>
-                    <button type="button" data-postid="@Model.Id" data-commentid="@c.Id" class="btn btn-link cdownvote glyphicon glyphicon-arrow-down"></button>
+                    <button type="button" data-postid="@Model.Id @c.Id" class="btn btn-link cdownvote glyphicon glyphicon-arrow-down"></button>
                 </div>
                 <div class="col-xs-7">
                     @{
@@ -135,14 +135,16 @@
     <script>
         $(".upvote, .downvote, .cupvote, .cdownvote").click(function () {
             var post = $(this);
-            var id = $(this).data('postid');
+            var databoth = $(this).data('postid');
+            var data = databoth.split(" ");
+            var id = data[0];
             var isUp = true;
             if ($(this).is('.downvote, .cdownvote')) {
                 isUp = false;
             }
             var cId = -1;
             if($(this).is('cupvote, cdownvote')){
-                cId = $(this).data('commentid');
+                cId = data[1];
             }
             $.ajax({
                 type: "POST",
