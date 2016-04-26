@@ -1,4 +1,5 @@
 ﻿@model RedditClone.Models.RedditPost
+@using Humanizer
 @using RedditClone.Models;
 @{
     ViewBag.Title = "Details";
@@ -14,39 +15,17 @@
         <div class="row overallpost">
             <div class="col-xs-1">
                 <button type="button" data-postid="@Model.Id" class="btn btn-link upvote glyphicon glyphicon-arrow-up"></button>
-                <h5 class="postscore">@(Model.UpVotes - Model.DownVotes)</h5>
+                <h5 class="postscore">@Model.TotalVotes</h5>
                 <button type="button" data-postid="@Model.Id" class="btn btn-link downvote glyphicon glyphicon-arrow-down"></button>
             </div>
             <div class="col-xs-3">
                 <img class="postimage img-responsive center-block" src="@Model.ImageUrl" />
             </div>
             <div class="col-xs-6">
-                <span class="posttitle">@Html.ActionLink($"{Model.Title}", $"Details/{Model.Id}")</span>
-                @{
-                    span = now.Subtract(Model.PostTime);
-                }
-                @if (span.Days > 0)
-                {
-                    daysOrHours = span.Days + " days ago";
-                }
-                else if (span.Hours > 0)
-                {
-                    daysOrHours = span.Hours + " hours ago";
-                }
-                else if (span.Minutes > 0)
-                {
-                    daysOrHours = span.Minutes + " minutes ago";
-                }
-                else if (span.Seconds > 0)
-                {
-                    daysOrHours = span.Seconds + " seconds ago";
-                }
-                else
-                {
-                    daysOrHours = " just now";
-                }
-                <h6>Posted @daysOrHours by @Model.Author</h6>
-                @Html.ActionLink($"{Model.Comments.Count} comments", $"Details/{Model.Id}")
+                <span class="posttitle">@Html.ActionLink(Model.Title, "Details", new { Model.Id })</span>
+               
+                <h6>Posted @Model.PrettyPostTime by @Model.Author</h6>
+                @Html.ActionLink(Model.Comments.Count.ToString() + " comments", "Details", new { Model.Id })
                 <span>no sharing</span>
             </div>
             <div class="row">
@@ -87,35 +66,13 @@
         <div class="col-xs-8 leftside">
             <div class="row overallpost">
                 <div class="col-xs-1">
-                    <button type="button" data-postid="@Model.Id @c.Id"class="btn btn-link cupvote glyphicon glyphicon-arrow-up"></button>
-                    <h5 class="postscore">@(c.UpVotes - c.DownVotes)</h5>
-                    <button type="button" data-postid="@Model.Id @c.Id" class="btn btn-link cdownvote glyphicon glyphicon-arrow-down"></button>
+                    <button type="button" data-commentId="@c.Id" class="btn btn-link cupvote glyphicon glyphicon-arrow-up"></button>
+                    <h5 class="postscore">@c.TotalVotes</h5>
+                    <button type="button" data-commentId="@c.Id" class="btn btn-link cdownvote glyphicon glyphicon-arrow-down"></button>
                 </div>
-                <div class="col-xs-7">
-                    @{
-                        span = now.Subtract(c.PostTime);
-                    }
-                    @if (span.Days > 0)
-                    {
-                        daysOrHours = span.Days + " days ago";
-                    }
-                    else if (span.Hours > 0)
-                    {
-                        daysOrHours = span.Hours + " hours ago";
-                    }
-                    else if (span.Minutes > 0)
-                    {
-                        daysOrHours = span.Minutes + " minutes ago";
-                    }
-                    else if (span.Seconds > 0)
-                    {
-                        daysOrHours = span.Seconds + " seconds ago";
-                    }
-                    else
-                    {
-                        daysOrHours = " just now";
-                    }
-                    <h6>Posted @daysOrHours by @c.Author</h6>
+                <div cass="col-xs-7">
+                   
+                    <h6>Posted @c.PrettyPostTime by @c.Author</h6>
                 </div>
                 <div class="row">
                     <div class="col-xs-8 col-xs-offset-1 postbody">
@@ -133,40 +90,38 @@
 
 @section scripts{
     <script>
-        $(".upvote, .downvote, .cupvote, .cdownvote").click(function () {
-            var post = $(this);
-            var databoth = $(this).data('postid');
-            var data = databoth.split(" ");
-            var id = data[0];
-            var isUp = true;
-            if ($(this).is('.downvote, .cdownvote')) {
-                isUp = false;
-            }
-            var cId = -1;
-            if($(this).is('.cupvote, .cdownvote')){
-                cId = data[1];
-            }
+        function DoVote(item) {
+            var commentid = item.data('commentid');
+            var postid = item.data('postid');
+
             $.ajax({
                 type: "POST",
-                url: "../DoVote?id=" + id + "&cId="+ cId + "&isUp=" + isUp,
+                data: { postid: postid, commentid: commentid, isup: item.hasClass('upvote') || item.hasClass('cupvote') },
+                url: '@Url.Action("DoVote", "RedditPosts")'
             }).done(function (result) {
-                if (isUp)
-                    $(post).next().html(result);
-                else
-                    $(post).prev().html(result);
+                item.siblings('.postscore').html(result);
             });
+        }
+
+        $(".upvote, .downvote, .cupvote, .cdownvote").click(function () {
+            DoVote($(this));
         });
+
+
+
+
         $(".addcomment").click(function () {
-            var comment = $(this);
             var id = $(this).data('postid');
             var author = $(".commentauthor").val();
             var body = $(".commentbody").val();
             $.ajax({
                 type: "POST",
-                url: "../CreateComment?id=" + id + "&author=" + author + "&body="+ body,
-            })
-            console.log("Comment created!")
-            window.location.reload(true);
+                data: { id: id, author: author, body: body },
+                url: '@Url.Action("CreateComment","RedditPosts")'
+            }).done(function () {
+                location.reload(true);
+            });
+            
         });
 
     </script>

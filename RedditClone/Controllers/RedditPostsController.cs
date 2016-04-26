@@ -24,41 +24,28 @@ namespace RedditClone.Controllers
 
         // Post: Vote
         [HttpPost]
-        public ActionResult DoVote(int id, int cId, bool isUp)
+        public ActionResult DoVote(int? postId, int? commentId, bool isUp)
         {
-            if (cId >= 0)
-            {
-                var post = db.RedditPosts.Find(id);
-                int result = 0;
-                if (isUp)
-                {
-                    post.Comments.ToList()[cId].UpVotes++;
-                }
-                else
-                {
-                    post.Comments.ToList()[cId].DownVotes++;
-                }
-                result = (post.Comments.ToList()[cId].UpVotes - post.Comments.ToList()[cId].DownVotes);
-                db.SaveChanges();
-                return Content(result.ToString());
-            }
+            IVoteable item = null;
+            if (postId.HasValue)
+                item = db.RedditPosts.Find(postId.Value);
+
+            if (commentId.HasValue)
+                item = db.Comments.Find(commentId.Value);
+
+            if (item == null)
+                return HttpNotFound();
+
+            if (isUp)
+                item.UpVotes++;
             else
-            {
-                var post = db.RedditPosts.Find(id);
-                int result = 0;
-                if (isUp)
-                {
-                    post.UpVotes++;
-                }
-                else
-                {
-                    post.DownVotes++;
-                }
-                result = (post.UpVotes - post.DownVotes);
-                db.SaveChanges();
-                return Content(result.ToString());
-            }
+                item.DownVotes++;
+
+            db.SaveChanges();
+
+            return Content(item.TotalVotes.ToString());
         }
+
 
         // GET: RedditPosts/Details/5
         public ActionResult Details(int? id)
@@ -104,7 +91,7 @@ namespace RedditClone.Controllers
         public ActionResult CreateComment(int id, string author, string body)
         {
             var post = db.RedditPosts.Find(id);
-            post.Comments.Add(new Comment {Author = author, Body = body});
+            post.Comments.Add(new Comment { Author = author, Body = body });
             db.SaveChanges();
             return Content("Created!");
         }
