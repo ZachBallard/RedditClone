@@ -19,6 +19,7 @@ namespace RedditClone.Models
         public string Title { get; set; }
         [Required]
         public DateTime PostTime { get; set; } = DateTime.Now;
+       
         public int UpVotes { get; set; } = 0;
         public int DownVotes { get; set; } = 0;
 

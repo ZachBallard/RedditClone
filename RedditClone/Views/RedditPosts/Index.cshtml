@@ -3,9 +3,6 @@
 @{
     ViewBag.Title = "Index";
     int numbering = 1;
-    TimeSpan span = new TimeSpan();
-    DateTime now = DateTime.Now;
-    string daysOrHours = "";
 }
 <p>
     @Html.ActionLink("Create New", "Create")
@@ -21,7 +18,7 @@
                 </div>
                 <div class="col-xs-1">
                     <button type="button" data-postid="@item.Id" class="btn btn-link upvote glyphicon glyphicon-arrow-up"></button>
-                    <h5 class="postscore">@(item.UpVotes - item.DownVotes)</h5>
+                    <h5 class="postscore">@item.TotalVotes</h5>
                     <button type="button" data-postid="@item.Id" class="btn btn-link downvote glyphicon glyphicon-arrow-down"></button>
                 </div>
                 <div class="col-xs-4">
@@ -29,31 +26,9 @@
                 </div>
                 <div class="col-xs-6 overallpost">
                     <span class="posttitle">@Html.ActionLink($"{item.Title}", $"Details/{item.Id}")</span>
-            @{
-                span = now.Subtract(item.PostTime);
-            }
-            @if (span.Days > 0)
-            {
-                daysOrHours = span.Days + " days ago";
-            }
-            else if(span.Hours > 0)
-            {
-                daysOrHours = span.Hours + " hours ago";
-            }
-            else if(span.Minutes > 0)
-            {
-                daysOrHours = span.Minutes + " minutes ago";
-            }
-            else if(span.Seconds > 0)
-            {
-                daysOrHours = span.Seconds + " seconds ago";
-            }
-            else
-            {
-                daysOrHours = " just now";
-            }
-            <h6>Posted @daysOrHours by @item.Author</h6>
-                    @Html.ActionLink($"{item.Comments.Count} comments", $"Details/{item.Id}")
+                    }
+                    <h6>Posted @item.PrettyPostTime by @item.Author</h6>
+                    @Html.ActionLink(item.Comments.Count.ToString() + " comments", "Details", new { item.Id })
                     <span>no sharing</span>
                 </div>
             </div>
@@ -77,25 +52,22 @@
 
 @section scripts{
     <script>
-        $(".upvote, .downvote").click(function () {
-            var post = $(this);
-            var id = $(this).data('postid');
-            var isUp = true;
-            if ($(this).hasClass('downvote'))
-            {
-                isUp = false;
-            }
+        function DoVote(item) {
+            var commentid = item.data('commentid');
+            var postid = item.data('postid');
+
             $.ajax({
                 type: "POST",
-                url: "./DoVote?id="+ id+"&isUp="+ isUp,
-            }).done(function(result){
-                if (isUp)
-                    $(post).next().html(result);
-                else
-                    $(post).prev().html(result);
-                });
+                data: { postid: postid, commentid: commentid, isup: item.hasClass('upvote') || item.hasClass('cupvote') },
+                url: '@Url.Action("DoVote", "RedditPosts")'
+            }).done(function (result) {
+                item.siblings('.postscore').html(result);
+            });
+        }
+
+        $(".upvote, .downvote, .cupvote, .cdownvote").click(function () {
+            DoVote($(this));
         });
 
-
     </script>
-    }
+}
